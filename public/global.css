@@ -67,3 +67,14 @@ button:not(:disabled):active {
 button:focus {
   border-color: #666;
 }
+
+.tt-title {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+.tt-label {
+  font-weight: 700;
+}
+.tt-label-row * {
+  display: inline-block;
+}

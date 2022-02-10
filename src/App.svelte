@@ -1,10 +1,11 @@
 <script>
+  let tooltip = 'Tooltip'
   let colors = [
     '#d53e4f',
     '#f46d43',
     '#fdae61',
     '#fee08b',
-    '#ffffbf',
+
     '#e6f598',
     '#abdda4',
     '#66c2a5',
@@ -14,6 +15,7 @@
   let promise = false
   import { tidy, pivotLonger, mutate, arrange, desc } from '@tidyjs/tidy'
   let width = 300 - 10
+  let wordsWidth = 300
   let frameWidth = 800
   let speechMax = 0
   $: console.log(frameWidth)
@@ -29,9 +31,10 @@
     left: 0,
   }
   import * as d3 from 'd3'
+  import { exclude_internal_props } from 'svelte/internal'
   let parseDate = d3.timeParse('%Y-%m-%d')
   let formatDate = d3.timeFormat('%m/%y')
-  let formatDateLong = d3.timeFormat('%d %B %Y')
+  let formatDateLong = d3.timeFormat('%e %B %Y')
   let data = []
   let maximum = []
   let max = 0
@@ -118,7 +121,10 @@
     .range([height - margin.bottom, margin.top + 20])
     .domain([0, max])
 
-  $: speechXScale = d3.scaleLinear().range([0, width]).domain([0, speechMax])
+  $: speechXScale = d3
+    .scaleLinear()
+    .range([0, wordsWidth - 200])
+    .domain([0, speechMax])
 
   $: line_gen = d3
     .line()
@@ -163,9 +169,54 @@
       ad.welfare
     return remainder
   }
+  let x = 20
+  let y = 20
+
+  function hover(e, ad) {
+    console.log(e)
+
+    x = e.clientX + 10
+    y = e.clientY - 5
+    tooltip = `<div class="tooltip-inner">
+      <div class="tt-title">${formatDateLong(ad.sona)}</div></div>
+      <div class="tt-label-row">
+        <div class="tt-label" style="color: ${colors[0]};">Corruption</div>
+        <div class="tt-detail">${formatNumber.format(ad.corruption)} words</div>
+        </div>
+        <div class="tt-label-row">
+        <div class="tt-label" style="color: ${colors[1]};">Education</div>
+        <div class="tt-detail">${formatNumber.format(ad.education)} words</div>
+        </div>
+        <div class="tt-label-row">
+        <div class="tt-label" style="color: ${colors[2]};">Employment</div>
+        <div class="tt-detail">${formatNumber.format(
+          ad.employability
+        )} words</div>
+        </div>
+        <div class="tt-label-row">
+        <div class="tt-label" style="color: ${colors[3]};">Energy & Eskom</div>
+        <div class="tt-detail">${formatNumber.format(
+          ad.energy_policy
+        )} words</div>
+        </div>
+        <div class="tt-label-row">
+        <div class="tt-label" style="color: ${colors[4]};">RET</div>
+        <div class="tt-detail">${formatNumber.format(ad.ret)} words</div>
+        </div>
+        <div class="tt-label-row">
+        <div class="tt-label" style="color: ${colors[5]};">Transport</div>
+        <div class="tt-detail">${formatNumber.format(ad.transport)} words</div>
+        </div>
+        <div class="tt-label-row">
+        <div class="tt-label" style="color: ${colors[6]};">Welfare</div>
+        <div class="tt-detail">${formatNumber.format(ad.welfare)} words</div>
+        </div>
+      `
+  }
 </script>
 
 <main>
+  <div class="tooltip" style="top: {y}px; left: {x}px;">{@html tooltip}</div>
   <div class="page-title">Words spoken in each of the past 5 SONAs</div>
   <div class="sub-title">
     Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent ante
@@ -216,25 +267,45 @@
     </div>
 
     <!-- Words Spoken -->
-    <div class="words">
+    <div class="words" bind:clientWidth={wordsWidth}>
+      <div class="page-title">The longest (and shortest) speeches</div>
       <div class="legend">
         {#each categories as cat, i}
           <div class="legend-block" style="background: {colors[i]};">{cat}</div>
         {/each}
         <div
-          class="legend-block"
+          class="legend-block block-extra"
           style="
         background: {colors[7]};"
         >
-          Other
+          other
         </div>
       </div>
       {#each allData as ad}
         <div class="bar-label">
           {formatDateLong(ad.sona)} &mdash;
-          {formatNumber.format(ad.total)} words
+          {formatNumber.format(ad.total)} words in total (excluding greetings)
         </div>
-        <div class="sona-row" style>
+        <div
+          class="sona-row"
+          on:mouseover={(event) => {
+            hover(event, ad)
+          }}
+          on:focus={(event) => {
+            hover(event, ad)
+          }}
+          on:mousemove={(event) => {
+            hover(event, ad)
+          }}
+          on:mouseout={(event) => {
+            x = -1000
+            y = -1000
+          }}
+          on:blur={(event) => {
+            x = -1000
+            y = -1000
+          }}
+        >
           <div
             class="block"
             style="width: {speechXScale(
@@ -307,9 +378,19 @@
 <style>
   .legend-block {
     padding: 5px 10px;
+    margin: 0px;
     color: #000;
     font-weight: 400;
     font-family: 'Roboto Condensed', Arial, Helvetica, sans-serif;
+    border: solid 1px #fff;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+  }
+  .block-extra {
+    margin: none !important;
+  }
+  .light {
+    color: #fff;
   }
   .legend {
     margin-bottom: 20px;
@@ -318,8 +399,11 @@
     display: inline-block;
   }
   .bar-label {
-    font-size: 0.9rem;
+    /* font-size: 0.9rem; */
     font-weight: 700;
+    margin-top: 15px;
+    margin-bottom: 5px;
+    font-family: 'Roboto Condensed', Arial, Helvetica, sans-serif;
   }
   .words {
     /* border: solid 1px red; */
@@ -328,6 +412,7 @@
     max-width: 900px;
     margin-left: auto;
     margin-right: auto;
+    /* text-align: center;  */
   }
   .sona-row {
     width: 100%;
@@ -454,5 +539,18 @@
 
   .chart-container {
     width: 90%;
+  }
+  .tooltip {
+    position: fixed;
+    z-index: 300;
+    padding: 5px 10px;
+    background: #fff;
+    border: solid 1px lightgray;
+    font-size: 0.9rem;
+    -webkit-box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.22);
+    -moz-box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.22);
+    box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.22);
+    background: rgb(49, 49, 49);
+    color: #fff;
   }
 </style>
