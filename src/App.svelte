@@ -1,20 +1,37 @@
 <script>
+  let colors = [
+    '#d53e4f',
+    '#f46d43',
+    '#fdae61',
+    '#fee08b',
+    '#ffffbf',
+    '#e6f598',
+    '#abdda4',
+    '#66c2a5',
+    '#3288bd',
+  ]
   let formatNumber = new Intl.NumberFormat()
   let promise = false
   import { tidy, pivotLonger, mutate, arrange, desc } from '@tidyjs/tidy'
-  let width = 300
+  let width = 300 - 10
+  let frameWidth = 800
+  let speechMax = 0
+  $: console.log(frameWidth)
+  let allData = []
+
   let height = 400
   $: height = width * 0.3
-  $: width = width - 10
+
   let margin = {
     top: 10,
-    right: 5,
+    right: 30,
     bottom: 10,
-    left: 10,
+    left: 0,
   }
   import * as d3 from 'd3'
   let parseDate = d3.timeParse('%Y-%m-%d')
-  let formatDate = d3.timeFormat('%b%y')
+  let formatDate = d3.timeFormat('%m/%y')
+  let formatDateLong = d3.timeFormat('%d %B %Y')
   let data = []
   let maximum = []
   let max = 0
@@ -59,6 +76,11 @@
         response.forEach((f) => {
           sonas.push(f.sona)
         })
+        allData = response
+        console.log(allData)
+
+        speechMax = d3.max(allData, (d) => d.total)
+        console.log(speechMax)
 
         data = tidy(
           response,
@@ -93,8 +115,10 @@
 
   $: yScale = d3
     .scaleLinear()
-    .range([height - margin.bottom, margin.top + 10])
+    .range([height - margin.bottom, margin.top + 20])
     .domain([0, max])
+
+  $: speechXScale = d3.scaleLinear().range([0, width]).domain([0, speechMax])
 
   $: line_gen = d3
     .line()
@@ -126,6 +150,19 @@
 
   $: xTicks = xScale.ticks(5)
   $: yTicks = yScale.ticks(6)
+  $: console.log(width)
+
+  function speechRemainder(ad) {
+    let remainder =
+      ad.total -
+      ad.education -
+      ad.employability -
+      ad.energy_policy -
+      ad.ret -
+      ad.transport -
+      ad.welfare
+    return remainder
+  }
 </script>
 
 <main>
@@ -138,11 +175,14 @@
     hendrerit.
   </div>
   {#if promise}
-    <div class="charts">
+    <div class="charts" bind:clientWidth={frameWidth}>
+      <!-- <div class="chart" bind:clientWidth={width}>Chart</div>
+        <div class="chart" bind:clientWidth={width}>Chart</div>
+        <div class="chart" bind:clientWidth={width}>Chart</div> -->
       {#each categories as cat, i}
-        <div class="chart" bind:clientWidth={width}>
+        <div class="chart">
           <div class="chart-title">{getLabel(cat)}</div>
-          <svg {width} {height}>
+          <svg width={width - margin.left - margin.right} {height}>
             <path
               class="chart-area"
               d={area_gen(data.filter((c) => c.cat === cat))}
@@ -151,33 +191,18 @@
               class="chart-line"
               d={line_gen(data.filter((c) => c.cat === cat))}
             />
-            <line
-              x1={margin.left}
-              y1={height - margin.bottom}
-              x2={width - margin.right}
-              y2={height - margin.bottom}
-              stroke="gray"
-            />
 
             <line
               class="marker"
-              x1={getLabelX(cat) - 5}
+              x1={getLabelX(cat)}
               y1={margin.top}
-              x2={getLabelX(cat) - 5}
+              x2={getLabelX(cat)}
               y2={height - margin.bottom}
             />
-            <text x={getLabelX(cat) - 10} y={margin.top + 5}
+            <text x={getLabelX(cat) - 5} y={margin.top + 5}
               >{formatNumber.format(getLabelText(cat))} words</text
             >
             {#each sonas as sona}
-              <!-- <line
-                y1="0"
-                y2={height - margin.bottom}
-                x1={xScale(sona)}
-                x2={xScale(sona)}
-                class="x-grid"
-              /> -->
-
               <text class="x-tick" y={height} x={xScale(sona)}
                 >{formatDate(sona)}</text
               >
@@ -189,10 +214,134 @@
         {/if}
       {/each}
     </div>
+
+    <!-- Words Spoken -->
+    <div class="words">
+      <div class="legend">
+        {#each categories as cat, i}
+          <div class="legend-block" style="background: {colors[i]};">{cat}</div>
+        {/each}
+        <div
+          class="legend-block"
+          style="
+        background: {colors[7]};"
+        >
+          Other
+        </div>
+      </div>
+      {#each allData as ad}
+        <div class="bar-label">
+          {formatDateLong(ad.sona)} &mdash;
+          {formatNumber.format(ad.total)} words
+        </div>
+        <div class="sona-row" style>
+          <div
+            class="block"
+            style="width: {speechXScale(
+              ad.corruption
+            )}px; background: {colors[0]};"
+          >
+            &nbsp;
+          </div>
+          <div
+            class="block"
+            style="width: {speechXScale(
+              ad.education
+            )}px; background: {colors[1]};"
+          >
+            &nbsp;
+          </div>
+          <div
+            class="block"
+            style="width: {speechXScale(
+              ad.employability
+            )}px; background: {colors[2]};"
+          >
+            &nbsp;
+          </div>
+          <div
+            class="block"
+            style="width: {speechXScale(
+              ad.energy_policy
+            )}px; background: {colors[3]};"
+          >
+            &nbsp;
+          </div>
+          <div
+            class="block"
+            style="width: {speechXScale(ad.ret)}px; background: {colors[4]};"
+          >
+            &nbsp;
+          </div>
+
+          <div
+            class="block"
+            style="width: {speechXScale(
+              ad.transport
+            )}px; background: {colors[5]};"
+          >
+            &nbsp;
+          </div>
+          <div
+            class="block"
+            style="width: {speechXScale(
+              ad.welfare
+            )}px; background: {colors[6]};"
+          >
+            &nbsp;
+          </div>
+          <div
+            class="block"
+            style="width: {speechXScale(
+              speechRemainder(ad)
+            )}px; background: {colors[7]};"
+          >
+            &nbsp;
+          </div>
+        </div>
+      {/each}
+    </div>
   {/if}
 </main>
 
 <style>
+  .legend-block {
+    padding: 5px 10px;
+    color: #000;
+    font-weight: 400;
+    font-family: 'Roboto Condensed', Arial, Helvetica, sans-serif;
+  }
+  .legend {
+    margin-bottom: 20px;
+  }
+  .legend * {
+    display: inline-block;
+  }
+  .bar-label {
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+  .words {
+    /* border: solid 1px red; */
+    margin-top: 50px;
+    width: 100%;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .sona-row {
+    width: 100%;
+
+    border: solid 1px #fff;
+  }
+  .sona-row * {
+    display: inline-block;
+  }
+  .block {
+    padding: 5px;
+    background: #eee;
+    /* border: solid 0px #fff; */
+  }
   svg {
     overflow: visible;
   }
@@ -218,7 +367,8 @@
     text-align: center;
   }
   .charts {
-    width: 90%;
+    /* border: solid 1px red; */
+    width: 100%;
     max-width: 900px;
     margin-left: auto;
     margin-right: auto;
@@ -240,23 +390,30 @@
     stroke: none;
   }
   .chart {
-    width: 100%;
     border: solid 1px lightgray;
+    text-align: center;
+    max-width: 110%;
+    padding: 10px;
+
     /* background: rgb(243, 243, 243); */
   }
   .spacer {
     display: none;
   }
   .chart-title {
-    padding: 10px 20px;
+    padding: 0px 20px 10px 5px;
     font-weight: 700;
     text-transform: uppercase;
+    text-align: left;
+    font-family: 'Roboto Condensed', Arial, Helvetica, sans-serif;
   }
   text {
     font-size: 0.9rem;
+    font-weight: 700;
     fill: #000;
     /* font-weight: 700; */
     text-anchor: end;
+    fill: indianred;
   }
   .marker {
     stroke-width: 2px;
@@ -274,22 +431,28 @@
     stroke-dasharray: 3, 3;
   }
   .x-tick {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     text-anchor: middle;
     transform: translate(0, 3px);
+    font-family: 'Roboto Condensed', Arial, Helvetica, sans-serif;
+    fill: #000;
   }
 
-  @media only screen and (max-width: 800px) {
+  @media only screen and (max-width: 900px) {
     .charts {
       grid-template-columns: 1fr 1fr;
-      max-width: 500px;
+      max-width: 700px;
     }
   }
 
   @media only screen and (max-width: 600px) {
     .charts {
       grid-template-columns: 1fr;
-      max-width: 300px;
+      max-width: 400px;
     }
+  }
+
+  .chart-container {
+    width: 90%;
   }
 </style>
