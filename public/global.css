@@ -75,6 +75,7 @@ button:focus {
 .tt-label {
   font-weight: 700;
 }
+
 .tt-label-row * {
   display: inline-block;
 }

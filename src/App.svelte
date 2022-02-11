@@ -173,10 +173,8 @@
   let y = 20
 
   function hover(e, ad) {
-    console.log(e)
-
     x = e.clientX + 10
-    y = e.clientY - 5
+    y = e.clientY - 100
     tooltip = `<div class="tooltip-inner">
       <div class="tt-title">${formatDateLong(ad.sona)}</div></div>
       <div class="tt-label-row">
@@ -271,7 +269,9 @@
       <div class="page-title">The longest (and shortest) speeches</div>
       <div class="legend">
         {#each categories as cat, i}
-          <div class="legend-block" style="background: {colors[i]};">{cat}</div>
+          <div class="legend-block" style="background: {colors[i]};">
+            {getLabel(cat)}
+          </div>
         {/each}
         <div
           class="legend-block block-extra"
@@ -416,8 +416,12 @@
   }
   .sona-row {
     width: 100%;
+    opacity: 0.6;
 
     border: solid 1px #fff;
+  }
+  .sona-row:hover {
+    opacity: 1;
   }
   .sona-row * {
     display: inline-block;
@@ -552,5 +556,7 @@
     box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.22);
     background: rgb(49, 49, 49);
     color: #fff;
+    top: -1000px;
+    left: -1000px;
   }
 </style>
