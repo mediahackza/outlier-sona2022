@@ -222,11 +222,12 @@
   <div class="tooltip" style="top: {y}px; left: {x}px;">{@html tooltip}</div>
   <div class="page-title">Words spoken in each of the past 5 SONAs</div>
   <div class="sub-title">
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent ante
-    dolor, tincidunt non tempus a, congue in tortor. Donec lacinia laoreet
-    sapien ut rutrum. Morbi feugiat eleifend ligula, vitae mollis erat varius a.
-    Nam nec lorem dolor. Suspendisse potenti. Ut vitae dui et est fringilla
-    hendrerit.
+    In the chart below we look at seven key topics and how many words each has
+    received in the past six State of the Nation Addresses. The maximum number
+    of words for each is indicated by the red markers. <em>
+      Note, this is not how many times the word has been used but how many words
+      were dedicated to each of the topics in general.
+    </em>
   </div>
   {#if promise}
     <div class="charts" bind:clientWidth={frameWidth}>
@@ -272,6 +273,12 @@
     <!-- Words Spoken -->
     <div class="words" bind:clientWidth={wordsWidth}>
       <div class="page-title">The longest (and shortest) speeches</div>
+      <div class="sub-title">
+        The past six SONA speeches have ranged in length from 4,500 words to
+        more than 8,000 words. This excludes the often lengthy greetings that
+        preced the speech. This year's SONA speech was the second longest in
+        recent times, just 133 words shy of the longest in February 2019.
+      </div>
       <div class="legend">
         {#each categories as cat, i}
           <div
@@ -460,7 +467,7 @@
     overflow: visible;
   }
   main {
-    padding-bottom: 200px;
+    padding-bottom: 100px;
   }
   .page-title {
     width: 90%;
