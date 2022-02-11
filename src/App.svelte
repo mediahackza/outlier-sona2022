@@ -159,18 +159,23 @@
   $: console.log(width)
 
   function speechRemainder(ad) {
+    let total = ad.total
     let remainder =
       ad.total -
+      ad.corruption -
       ad.education -
       ad.employability -
       ad.energy_policy -
       ad.ret -
       ad.transport -
       ad.welfare
+    let d = ad.sona
+    console.log({ d, remainder, total })
+
     return remainder
   }
-  let x = 20
-  let y = 20
+  let x = -1000
+  let y = -1000
 
   function hover(e, ad) {
     x = e.clientX + 10
@@ -269,7 +274,10 @@
       <div class="page-title">The longest (and shortest) speeches</div>
       <div class="legend">
         {#each categories as cat, i}
-          <div class="legend-block" style="background: {colors[i]};">
+          <div
+            class="legend-block {i === 0 || i === 1 || i === 6 ? 'light' : ''}"
+            style="background: {colors[i]};"
+          >
             {getLabel(cat)}
           </div>
         {/each}
@@ -283,8 +291,12 @@
       </div>
       {#each allData as ad}
         <div class="bar-label">
-          {formatDateLong(ad.sona)} &mdash;
-          {formatNumber.format(ad.total)} words in total (excluding greetings)
+          {formatDateLong(ad.sona)}<br />
+          <div class="word-count">
+            SONA speech was <strong
+              >{formatNumber.format(ad.total)} words</strong
+            > in total
+          </div>
         </div>
         <div
           class="sona-row"
@@ -362,12 +374,12 @@
             &nbsp;
           </div>
           <div
-            class="block"
+            class="block block-extra block-extra-bold"
             style="width: {speechXScale(
               speechRemainder(ad)
             )}px; background: {colors[7]};"
           >
-            &nbsp;
+            {formatNumber.format(speechRemainder(ad))} words
           </div>
         </div>
       {/each}
@@ -388,6 +400,11 @@
   }
   .block-extra {
     margin: none !important;
+    color: #fff;
+  }
+  .block-extra-bold {
+    font-weight: 700;
+    font-size: 0.9rem;
   }
   .light {
     color: #fff;
@@ -404,6 +421,7 @@
     margin-top: 15px;
     margin-bottom: 5px;
     font-family: 'Roboto Condensed', Arial, Helvetica, sans-serif;
+    text-transform: uppercase;
   }
   .words {
     /* border: solid 1px red; */
@@ -415,13 +433,14 @@
     /* text-align: center;  */
   }
   .sona-row {
-    width: 100%;
+    /* width: 100%; */
     opacity: 0.6;
-
-    border: solid 1px #fff;
+    text-align: left;
+    /* border: solid 1px #fff; */
   }
   .sona-row:hover {
     opacity: 1;
+    cursor: pointer;
   }
   .sona-row * {
     display: inline-block;
@@ -429,6 +448,8 @@
   .block {
     padding: 5px;
     background: #eee;
+
+    /* margin: 3px; */
     /* border: solid 0px #fff; */
   }
   svg {
@@ -525,6 +546,15 @@
     transform: translate(0, 3px);
     font-family: 'Roboto Condensed', Arial, Helvetica, sans-serif;
     fill: #000;
+  }
+  .word-count {
+    font-weight: 400;
+    color: gray;
+    font-size: 0.9rem;
+    margin-top: 5px;
+  }
+  strong {
+    color: #000;
   }
 
   @media only screen and (max-width: 900px) {
