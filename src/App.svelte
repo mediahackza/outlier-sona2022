@@ -220,7 +220,7 @@
 
 <main>
   <div class="tooltip" style="top: {y}px; left: {x}px;">{@html tooltip}</div>
-  <div class="page-title">Words spoken in each of the past 5 SONAs</div>
+  <div class="page-title">Words spoken in each of the past 6 SONAs</div>
   <div class="sub-title">
     In the chart below we look at seven key topics and how many words each has
     received in the past six State of the Nation Addresses. The maximum number
