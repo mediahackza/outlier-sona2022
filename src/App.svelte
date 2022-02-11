@@ -33,7 +33,7 @@
   import * as d3 from 'd3'
   import { exclude_internal_props } from 'svelte/internal'
   let parseDate = d3.timeParse('%Y-%m-%d')
-  let formatDate = d3.timeFormat('%m/%y')
+  let formatDate = d3.timeFormat('%-m/%y')
   let formatDateLong = d3.timeFormat('%e %B %Y')
   let data = []
   let maximum = []
@@ -398,9 +398,19 @@
     text-transform: uppercase;
     font-size: 0.8rem;
   }
+  .block {
+    padding: 5px;
+    background: #eee;
+    margin: 0px !important;
+
+    /* margin: 3px; */
+    /* border: solid 0px #fff; */
+  }
   .block-extra {
-    margin: none !important;
+    /* margin: none !important; */
     color: #fff;
+    padding: 6px;
+    transform: translate(0px, -1px);
   }
   .block-extra-bold {
     font-weight: 700;
@@ -445,13 +455,7 @@
   .sona-row * {
     display: inline-block;
   }
-  .block {
-    padding: 5px;
-    background: #eee;
 
-    /* margin: 3px; */
-    /* border: solid 0px #fff; */
-  }
   svg {
     overflow: visible;
   }
